@@ -22,3 +22,9 @@ class DecisionEnum(str, Enum):
     DELETE = 'DELETE'
     NORMAL = 'NORMAL'
     EXTEND = 'EXTEND'
+
+
+class DimensionEnum(str, Enum):
+    CPU = "CPU"
+    RAM = "RAM"
+    NETFLOW = "NetFlow"
