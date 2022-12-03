@@ -16,7 +16,7 @@ async def get(session, url):
 
 
 async def get_resource_task() -> list[str]:
-    url = f"http://{METRICS_GEN_SERVICE_HOST}:{METRICS_GEN_SERVICE_PORT}/{METRICS_GEN_ENDPOINT}/"
+    url = f"http://{METRICS_GEN_SERVICE_HOST}:{METRICS_GEN_SERVICE_PORT}/generate_metrics/"
     generated_data_portion_amount = 10
 
     async with aiohttp.ClientSession() as session:
