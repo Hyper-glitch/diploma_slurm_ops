@@ -106,10 +106,10 @@ class ResourceParser:
         fraction = self.mean / self.median
 
         if fraction > min_increased_percentage:
-            return 'Races'
+            return UsageEnum.RACES
         elif fraction < min_decreased_percentage:
-            return 'Decrease'
-        return 'Stable'
+            return UsageEnum.DECREASE
+        return UsageEnum.STABLE
 
     def define_intensity(self):
         match self.median:
@@ -123,15 +123,16 @@ class ResourceParser:
                 return IntensityEnum.EXTREME.value
 
     def make_decision(self):
-        usage_type_values = UsageEnum.values()
+        usage_types = UsageEnum.values()
+        text = None
 
-        if self.intensity == IntensityEnum.LOW.value and self.usage_type in usage_type_values:
+        if self.intensity == IntensityEnum.LOW.value and self.usage_type in usage_types:
             text = DecisionEnum.DELETE.value
         elif self.intensity == IntensityEnum.MEDIUM.value and self.usage_type == UsageEnum.DECREASE.value:
             text = DecisionEnum.DELETE.value
-        elif self.intensity == IntensityEnum.MEDIUM.value and self.usage_type in usage_type_values[:-1]:
+        elif self.intensity == IntensityEnum.MEDIUM.value and self.usage_type in usage_types[:-1]:
             text = DecisionEnum.NORMAL.value
-        elif self.intensity == IntensityEnum.HIGH.value and self.usage_type in usage_type_values[1:]:
+        elif self.intensity == IntensityEnum.HIGH.value and self.usage_type in usage_types[1:]:
             text = DecisionEnum.NORMAL.value
         elif self.intensity == IntensityEnum.HIGH.value and self.usage_type == UsageEnum.RACES.value:
             text = DecisionEnum.EXTEND.value
