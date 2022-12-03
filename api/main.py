@@ -8,7 +8,8 @@ from hypercorn.asyncio import serve
 from hypercorn.config import Config
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
-from metrics_generator.utils import task
+from analyze_service.analyzer import handle_raw_data
+from api.coroutine.analyze_resources import get_resource_task
 
 logger = logging.getLogger('trello_creator')
 app = FastAPI()
@@ -23,7 +24,12 @@ def set_up_logger():
 
 @app.get("/analyzed_metrics")
 async def read_analyzed_metrics():
-    analyzed_data = await task()
+    raw_data = await get_resource_task()
+
+    analyzed_data = []
+    for data in raw_data:
+        analyzed_data.append(handle_raw_data(data))
+
     return {"analyzed_data": analyzed_data}
 
 
