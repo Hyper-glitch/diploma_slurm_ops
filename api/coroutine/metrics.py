@@ -1,4 +1,4 @@
-"""Module for getting data asynchronously."""
+"""Module for getting data from metrics generator asynchronously."""
 import asyncio
 
 import aiohttp
@@ -6,7 +6,6 @@ import aiohttp
 from metrics_generator.settings import (
     METRICS_GEN_SERVICE_PORT,
     METRICS_GEN_SERVICE_HOST,
-    METRICS_GEN_ENDPOINT,
 )
 
 
