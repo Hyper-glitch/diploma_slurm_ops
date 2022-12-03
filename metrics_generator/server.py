@@ -32,7 +32,7 @@ def get_team_resource_using(faker: Faker, observations_conf: dict, max_resources
     return faker.bs() + "|" + ";".join(observations)
 
 
-@app.route("/monitoring/infrastructure/using/summary/<int:company_branch>")
+@app.route("/generate_metrics/<int:company_branch>")
 def get_infrastructure_using_summary(company_branch):
     team_count = 4
     seed = int(company_branch)
