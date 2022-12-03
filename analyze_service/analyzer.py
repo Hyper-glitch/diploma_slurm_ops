@@ -1,6 +1,6 @@
 import logging
 
-from parser import ResourceParser
+from analyze_service.parser import ResourceParser
 
 logger = logging.getLogger('resource_analyzer')
 
