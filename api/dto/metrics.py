@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Dict, Any
 
 from pydantic import BaseModel
@@ -17,63 +19,8 @@ class ABCDimensionDTO(BaseModel):
 class DimensionDTO(BaseModel):
     __root__: Dict[str, ABCDimensionDTO]
 
-
-class DimensionsDTO(BaseModel):
-    dimensions: list[DimensionDTO]
-
-
-class ResourceDTO(BaseModel):
-    __root__: Dict[str, DimensionsDTO]
-
-
-class ResourcesDTO(BaseModel):
-    resources: list[ResourceDTO]
-
-
-class TeamDTO(BaseModel):
-    __root__: Dict[str, ResourcesDTO]
-
-
-class TeamsDTO(BaseModel):
-    teams: list[TeamDTO]
-
-
-class AnalyzedMetricsDTO(BaseModel):
-    teams: list[TeamDTO]
-
-    @staticmethod
-    def prepare_nested_dto(data) -> list[TeamDTO]:
-        teams_dto: list[TeamDTO] = []
-
-        for team, resources in data.items():
-            resources_dto: list[ResourceDTO] = []
-
-            for resource, dimensions in resources.items():
-                dimensions_dto: list[DimensionDTO] = []
-
-                for dimension in dimensions:
-                    if dimension is None:
-                        continue
-
-                    dimensions_dto.append(
-                        AnalyzedMetricsDTO.prepare_dimension_dto(
-                            dimension=dimension
-                        )
-                    )
-
-                resources_dto.append(
-                    AnalyzedMetricsDTO.prepare_resource_dto(
-                        resource=resource, dimensions=DimensionsDTO(dimensions=dimensions_dto),
-                    )
-                )
-            teams_dto.append(AnalyzedMetricsDTO.prepare_team_dto(
-                team=team, resources=ResourcesDTO(resources=resources_dto),
-            ))
-
-        return teams_dto
-
-    @staticmethod
-    def prepare_dimension_dto(dimension: dict[str, Any]) -> DimensionDTO:
+    @classmethod
+    def prepare_dimension_dto(cls, dimension: dict[str, Any]) -> DimensionDTO:
         for key, values in dimension.items():
             abc_dto = ABCDimensionDTO(
                 mean=values["mean"],
@@ -94,12 +41,63 @@ class AnalyzedMetricsDTO(BaseModel):
                 case _:
                     raise Exception(f"Unexpected dimension: {key}")
 
-            return DimensionDTO(__root__=__root__)
+            return cls(__root__=__root__)
+
+
+class DimensionsDTO(BaseModel):
+    dimensions: list[DimensionDTO]
+
+
+class ResourceDTO(BaseModel):
+    __root__: Dict[str, DimensionsDTO]
+
+    @classmethod
+    def prepare_resource_dto(cls, resource: str, dimensions: DimensionsDTO) -> ResourceDTO:
+        return cls(__root__={resource: dimensions})
+
+
+class ResourcesDTO(BaseModel):
+    resources: list[ResourceDTO]
+
+
+class TeamDTO(BaseModel):
+    __root__: Dict[str, ResourcesDTO]
+
+    @classmethod
+    def prepare_team_dto(cls, team: str, resources: ResourcesDTO) -> TeamDTO:
+        return cls(__root__={team: resources})
+
+
+class TeamsDTO(BaseModel):
+    teams: list[TeamDTO]
 
     @staticmethod
-    def prepare_resource_dto(resource: str, dimensions: DimensionsDTO) -> ResourceDTO:
-        return ResourceDTO(__root__={resource: dimensions})
+    def prepare_teams_dto(data: dict[str, dict[str, list[dict[str, dict]]]]) -> list[TeamDTO]:
+        teams_dto: list[TeamDTO] = []
 
-    @staticmethod
-    def prepare_team_dto(team: str, resources: ResourcesDTO) -> TeamDTO:
-        return TeamDTO(__root__={team: resources})
+        for team, resources in data.items():
+            resources_dto: list[ResourceDTO] = []
+
+            for resource, dimensions in resources.items():
+                dimensions_dto: list[DimensionDTO] = []
+
+                for dimension in dimensions:
+                    if dimension is None:
+                        continue
+
+                    dimensions_dto.append(
+                        DimensionDTO.prepare_dimension_dto(
+                            dimension=dimension
+                        )
+                    )
+
+                resources_dto.append(
+                    ResourceDTO.prepare_resource_dto(
+                        resource=resource, dimensions=DimensionsDTO(dimensions=dimensions_dto),
+                    )
+                )
+            teams_dto.append(TeamDTO.prepare_team_dto(
+                team=team, resources=ResourcesDTO(resources=resources_dto),
+            ))
+
+        return teams_dto
