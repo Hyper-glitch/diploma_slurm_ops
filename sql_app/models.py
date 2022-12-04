@@ -9,13 +9,18 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 
-from enums.analyzer import UsageEnum, DecisionEnum, IntensityEnum, DimensionEnum
+from enums.decision import DecisionEnum
+from enums.dimension import DimensionEnum
+from enums.intensity import IntensityEnum
+from enums.usage import UsageEnum
 from sql_app.database import Base
 
 
 class Dimension(Base):
+    __tablename__ = "dimension"
     id = Column(Integer, primary_key=True, index=True)
     title = Column(Enum(DimensionEnum), nullable=False)
+
     mean = Column(Float, nullable=False)
     median = Column(Float, nullable=False)
     usage_type = Column(Enum(UsageEnum), index=True, nullable=False)
@@ -23,16 +28,24 @@ class Dimension(Base):
     decision = Column(Enum(DecisionEnum), index=True, nullable=False)
     collect_date = Column(DateTime, nullable=False)
 
+    resource = relationship("Resource", back_populates="dimensions")
+    resource_id = Column(Integer, ForeignKey("resource.id"))
+
 
 class Resource(Base):
+    __tablename__ = "resource"
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    dimension_id = Column(Integer, ForeignKey("dimension.id"))
+    title = Column(String, index=True, unique=True)
+
     dimensions = relationship("Dimension", back_populates="resource")
+
+    team = relationship("Team", back_populates="resources")
+    team_id = Column(Integer, ForeignKey("team.id"))
 
 
 class Team(Base):
+    __tablename__ = "team"
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    resource_id = Column(Integer, ForeignKey("resource.id"))
+    title = Column(String, index=True, unique=True)
+
     resources = relationship("Resource", back_populates="team")
