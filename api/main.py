@@ -23,9 +23,9 @@ def set_up_logger():
     logger.addHandler(handler)
 
 
-@app.get("/analyzed_metrics")
-async def read_analyzed_metrics() -> dict[str, TeamsDTO]:
-    raw_data = await get_resource_task()
+@app.get("/analyzed_metrics/{portion_amount}")
+async def read_analyzed_metrics(portion_amount: int) -> dict[str, TeamsDTO]:
+    raw_data = await get_resource_task(portion_amount=portion_amount)
     teams_dto: list[TeamDTO] = []
 
     for data in raw_data:
