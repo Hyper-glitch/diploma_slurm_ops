@@ -4,25 +4,25 @@ from typing import Dict, Any
 
 from pydantic import BaseModel
 
-from enums.analyzer import UsageEnum, DimensionEnum
+from enums.analyzer import UsageEnum, DimensionEnum, DecisionEnum
 
 
-class ABCDimensionDTO(BaseModel):
+class AbstractDimensionDTO(BaseModel):
     mean: float
     median: float
     usage_type: UsageEnum
     intensity: str
-    decision: str
+    decision: DecisionEnum
     collect_date: str
 
 
 class DimensionDTO(BaseModel):
-    __root__: Dict[str, ABCDimensionDTO]
+    __root__: Dict[str, AbstractDimensionDTO]
 
     @classmethod
     def prepare_dimension_dto(cls, dimension: dict[str, Any]) -> DimensionDTO:
         for key, values in dimension.items():
-            abc_dto = ABCDimensionDTO(
+            abc_dto = AbstractDimensionDTO(
                 mean=values["mean"],
                 median=values["median"],
                 usage_type=values["usage_type"],
