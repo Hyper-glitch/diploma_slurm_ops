@@ -7,6 +7,8 @@ from functools import partial
 from faker import Faker
 from flask import Flask
 
+from metrics_generator.settings import METRICS_GEN_SERVICE_PORT, METRICS_GEN_SERVICE_HOST
+
 app = Flask(__name__)
 
 
@@ -61,4 +63,4 @@ def get_infrastructure_using_summary(company_branch):
 
 
 if __name__ == '__main__':
-    app.run(port=21122)
+    app.run(port=METRICS_GEN_SERVICE_PORT, host=METRICS_GEN_SERVICE_HOST)
