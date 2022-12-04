@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from typing import Dict, Any
+from typing import Any, Dict
 
 from pydantic import BaseModel
 
-from enums.analyzer import UsageEnum, DimensionEnum, DecisionEnum
+from enums.decision import DecisionEnum
+from enums.dimension import DimensionEnum
+from enums.usage import UsageEnum
 
 
 class AbstractDimensionDTO(BaseModel):
@@ -21,6 +23,8 @@ class DimensionDTO(BaseModel):
 
     @classmethod
     def prepare_dimension_dto(cls, dimension: dict[str, Any]) -> DimensionDTO:
+        __root__ = None
+
         for key, values in dimension.items():
             abc_dto = AbstractDimensionDTO(
                 mean=values["mean"],
@@ -41,7 +45,7 @@ class DimensionDTO(BaseModel):
                 case _:
                     raise Exception(f"Unexpected dimension: {key}")
 
-            return cls(__root__=__root__)
+        return cls(__root__=__root__)
 
 
 class DimensionsDTO(BaseModel):
