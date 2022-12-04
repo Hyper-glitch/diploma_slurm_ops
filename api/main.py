@@ -10,7 +10,7 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from analyze_service.analyzer import handle_raw_data
 from api.coroutine.metrics import get_resource_task
-from api.dto.metrics import AnalyzedMetricsDTO, TeamDTO, TeamsDTO
+from api.dto.metrics import TeamDTO, TeamsDTO
 
 logger = logging.getLogger('trello_creator')
 app = FastAPI()
@@ -29,7 +29,7 @@ async def read_analyzed_metrics(portion_amount: int) -> dict[str, TeamsDTO]:
     teams_dto: list[TeamDTO] = []
 
     for data in raw_data:
-        teams_dto.extend(AnalyzedMetricsDTO.prepare_nested_dto(data=handle_raw_data(data)))
+        teams_dto.extend(TeamsDTO.prepare_teams_dto(data=handle_raw_data(data)))
     response = TeamsDTO(teams=teams_dto)
 
     return {"analyzed_data": response}
