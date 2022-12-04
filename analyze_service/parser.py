@@ -1,5 +1,7 @@
 """Module for resource parser."""
-from enums.analyzer import IntensityEnum, UsageEnum, DecisionEnum
+from enums.decision import DecisionEnum
+from enums.intensity import IntensityEnum
+from enums.usage import UsageEnum
 
 
 class ResourceParser:
