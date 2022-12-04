@@ -43,15 +43,18 @@ class AnalyzedMetricsDTO(BaseModel):
 
     @staticmethod
     def prepare_nested_dto(data) -> list[TeamDTO]:
-        dimensions_dto: list[DimensionDTO | None] = []
-        resources_dto: list[ResourceDTO] = []
         teams_dto: list[TeamDTO] = []
 
         for team, resources in data.items():
+            resources_dto: list[ResourceDTO] = []
+
             for resource, dimensions in resources.items():
+                dimensions_dto: list[DimensionDTO] = []
+
                 for dimension in dimensions:
                     if dimension is None:
                         continue
+
                     dimensions_dto.append(
                         AnalyzedMetricsDTO.prepare_dimension_dto(
                             dimension=dimension
