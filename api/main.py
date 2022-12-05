@@ -1,28 +1,47 @@
-import asyncio
 import logging
-import sys
+import os
 
+import uvicorn
 from fastapi import FastAPI, Depends, HTTPException
-from hypercorn.asyncio import serve
-from hypercorn.config import Config
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.sdk.resources import Resource as otl_resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 from analyze_service.analyzer import handle_raw_data
 from api.coroutine.resource import get_resource_task
 from api.dto.metrics import TeamDTO, TeamsDTO
+from span import SpanFormatter
 from sql_app import models, schemas, crud
 from sql_app.database import engine, get_db
 from sql_app.schemas import Team, Resource, Dimension
 
-logger = logging.getLogger('trello_creator')
-models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
+models.Base.metadata.create_all(bind=engine)
 
-def set_up_logger():
-    logger.setLevel(logging.DEBUG)
-    handler = logging.StreamHandler(stream=sys.stdout)
-    handler.setFormatter(logging.Formatter(fmt='[%(asctime)s: %(levelname)s] %(message)s'))
+AGENT_HOSTNAME = os.getenv("AGENT_HOSTNAME", "localhost")
+AGENT_PORT = int(os.getenv("AGENT_PORT", "4317"))
+
+
+resource = otl_resource(attributes={
+    "service.name": "service-api"
+})
+trace.set_tracer_provider(TracerProvider(resource=resource))
+otlp_exporter = OTLPSpanExporter(endpoint=f"{AGENT_HOSTNAME}:{AGENT_PORT}", insecure=True)
+trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(otlp_exporter))
+FastAPIInstrumentor.instrument_app(app)
+
+
+@app.on_event("startup")
+async def startup_event():
+    logger = logging.getLogger("uvicorn.access")
+    handler = logging.StreamHandler()
+    handler.setFormatter(SpanFormatter(
+         'time="%(asctime)s" service=%(name)s level=%(levelname)s %(message)s trace_id=%(trace_id)s'
+     ))
     logger.addHandler(handler)
 
 
@@ -63,6 +82,4 @@ async def add_teams(dimension: Dimension, db=Depends(get_db)):
 
 
 if __name__ == '__main__':
-    set_up_logger()
-    FastAPIInstrumentor.instrument_app(app)
-    asyncio.run(serve(app, Config()))
+    uvicorn.run("main:app", port=5000, log_level="info")
