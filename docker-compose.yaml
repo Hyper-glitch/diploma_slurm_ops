@@ -1,0 +1,77 @@
+version: "3.7"
+
+volumes:
+  db_volume:
+
+services:
+  async_analyze_metrics:
+    build: .
+    command: uvicorn api.main:app --host 0.0.0.0
+    ports:
+      - "5000:5000"
+    networks:
+      - metrics_network
+    environment:
+      - AGENT_HOSTNAME=otel-collector
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:14-alpine
+    volumes:
+      - ./sql_app/init_default.sql:/docker-entrypoint-initdb.d/init_default.sql
+      - db_volume:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - metrics_network
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "db", "-U", "glitch" ]
+      timeout: 40s
+      interval: 2s
+      retries: 20
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.25.0
+    ports:
+      - "6831:6831"
+      - "14268:14268"
+      - "4317:4317"
+    networks:
+      - metrics_network
+    volumes:
+      - ./config/otel-collector.yaml:/config/otel-collector.yaml
+    command:
+      - --config=/config/otel-collector.yaml
+
+  tempo:
+    image: grafana/tempo:0.7.0
+    command: ["-config.file=/etc/tempo.yaml"]
+    ports:
+      - "3100:3100"
+      - "55680:55680"
+    networks:
+      - metrics_network
+    volumes:
+      - ./config/tempo.yaml:/etc/tempo.yaml
+      - ./example-data/tempo:/tmp/tempo
+
+  grafana:
+    image: grafana/grafana:7.5.4
+    volumes:
+      - ./config/datasources:/etc/grafana/provisioning/datasources
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    ports:
+      - "3000:3000"
+    networks:
+      - metrics_network
+
+networks:
+  metrics_network:
+    driver: bridge
