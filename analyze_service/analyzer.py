@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from analyze_service.parser import ResourceParser
 
@@ -12,7 +13,7 @@ def handle_raw_data(raw_data: str):
         "pipe": '|',
         "semicolon": ";",
     }
-    analyzed_data = {}
+    analyzed_data: dict[str, dict[str, list[dict[str, dict[str, Any]]]]] = {}
 
     splitted_commands = raw_data.split(parse_symbols["dollar"])
 
@@ -33,7 +34,7 @@ def handle_raw_data(raw_data: str):
 def analyze_raw_data(analyzed_data, team, raw_data):
     analyzed_resources = {}
     step = 200
-    analyzed_dimensions = []
+    analyzed_dimensions: list[dict[str, Any]] = []
 
     for data_amount in range(0, 6000, step):
         resources = raw_data[data_amount:data_amount + step]
