@@ -23,7 +23,7 @@ async def read_analyzed_metrics(portion_amount: int) -> dict[str, TeamsResponse]
 
 
 @router.post("/teams/", response_model=schemas.Team)
-async def add_teams(team: Team, session=Depends(get_session)):
+async def add_team(team: Team, session=Depends(get_session)):
     db_team = crud.get_team(session=session, team_id=team.id)
     if db_team:
         raise HTTPException(status_code=400, detail="Team has already exists")
@@ -31,16 +31,20 @@ async def add_teams(team: Team, session=Depends(get_session)):
 
 
 @router.post("/resources/", response_model=schemas.Resource)
-async def add_teams(resource: Resource, session=Depends(get_session)):
+async def add_resource(resource: Resource, session=Depends(get_session)):
     db_resource = crud.get_resource(session=session, resource_id=resource.id)
     if db_resource:
         raise HTTPException(status_code=400, detail="Resource has already exists")
-    return crud.create_resource(session=session, resource=resource, team_id=resource.team_id)
+    return crud.create_resource(
+        session=session, resource=resource, team_id=resource.team_id
+    )
 
 
 @router.post("/dimensions/", response_model=schemas.Dimension)
-async def add_teams(dimension: Dimension, session=Depends(get_session)):
+async def add_dimension(dimension: Dimension, session=Depends(get_session)):
     db_resource = crud.get_dimension(session=session, dimension_id=dimension.id)
     if db_resource:
         raise HTTPException(status_code=400, detail="Dimension has already exists")
-    return crud.create_dimension(session=session, dimension=dimension, resource_id=dimension.resource_id)
+    return crud.create_dimension(
+        session=session, dimension=dimension, resource_id=dimension.resource_id
+    )
