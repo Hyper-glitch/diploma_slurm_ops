@@ -7,12 +7,17 @@ from functools import partial
 from faker import Faker
 from flask import Flask
 
-from metrics_generator.settings import METRICS_GEN_SERVICE_PORT, METRICS_GEN_SERVICE_HOST
+from settings import (
+    METRICS_GEN_SERVICE_PORT,
+    METRICS_GEN_SERVICE_HOST,
+)
 
 app = Flask(__name__)
 
 
-def get_team_resource_using(faker: Faker, observations_conf: dict, max_resources: int = 10):
+def get_team_resource_using(
+    faker: Faker, observations_conf: dict, max_resources: int = 10
+):
     observations = []
     monitoring_delta = datetime.timedelta(hours=1)
     time_format = "%Y-%m-%d %H:%M:%S"
@@ -21,14 +26,21 @@ def get_team_resource_using(faker: Faker, observations_conf: dict, max_resources
         resource = faker.license_plate()
         for observations_type in observations_conf["observations_types"]:
             observation_datetime = datetime.datetime.now() - datetime.timedelta(
-                hours=observations_conf["max_observations"])
+                hours=observations_conf["max_observations"]
+            )
             for _ in range(observations_conf["max_observations"]):
-                observations.append("(" + ",".join((
-                    resource,
-                    observations_type,
-                    observation_datetime.strftime(time_format),
-                    str(int(observations_conf["distribution"]() * 100))
-                )) + ")")
+                observations.append(
+                    "("
+                    + ",".join(
+                        (
+                            resource,
+                            observations_type,
+                            observation_datetime.strftime(time_format),
+                            str(int(observations_conf["distribution"]() * 100)),
+                        )
+                    )
+                    + ")"
+                )
                 observation_datetime += monitoring_delta
 
     return faker.bs() + "|" + ";".join(observations)
@@ -44,23 +56,30 @@ def get_infrastructure_using_summary(company_branch):
 
     team_stats = []
 
-    distributions = deque((partial(random.betavariate, alpha=0.1, beta=0.1),
-                           partial(random.betavariate, alpha=1, beta=3),
-                           partial(random.betavariate, alpha=8, beta=8),
-                           partial(random.betavariate, alpha=1, beta=1))
-                          )
+    distributions = deque(
+        (
+            partial(random.betavariate, alpha=0.1, beta=0.1),
+            partial(random.betavariate, alpha=1, beta=3),
+            partial(random.betavariate, alpha=8, beta=8),
+            partial(random.betavariate, alpha=1, beta=1),
+        )
+    )
 
     for _ in range(team_count):
         distribution = distributions.pop()
-        team_stats.append(get_team_resource_using(fake,
-                                                  observations_conf={
-                                                      "max_observations": 200,
-                                                      "observations_types": ["CPU", "RAM", "NetFlow"],
-                                                      "distribution": distribution
-                                                  }))
+        team_stats.append(
+            get_team_resource_using(
+                fake,
+                observations_conf={
+                    "max_observations": 200,
+                    "observations_types": ["CPU", "RAM", "NetFlow"],
+                    "distribution": distribution,
+                },
+            )
+        )
         distributions.appendleft(distribution)
     return "$".join(team_stats), 200
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(port=METRICS_GEN_SERVICE_PORT, host=METRICS_GEN_SERVICE_HOST)
