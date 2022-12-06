@@ -7,13 +7,15 @@ from sqlalchemy import (
     Enum,
     DateTime,
 )
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
 from enums.decision import DecisionEnum
 from enums.dimension import DimensionEnum
 from enums.intensity import IntensityEnum
 from enums.usage import UsageEnum
-from sql_app.database import Base
+
+Base = declarative_base()
 
 
 class Dimension(Base):
