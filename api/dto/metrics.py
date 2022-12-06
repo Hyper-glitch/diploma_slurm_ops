@@ -56,7 +56,9 @@ class ResourceDTO(BaseModel):
     __root__: Dict[str, DimensionsDTO]
 
     @classmethod
-    def prepare_resource_dto(cls, resource: str, dimensions: DimensionsDTO) -> ResourceDTO:
+    def prepare_resource_dto(
+        cls, resource: str, dimensions: DimensionsDTO
+    ) -> ResourceDTO:
         return cls(__root__={resource: dimensions})
 
 
@@ -64,20 +66,22 @@ class ResourcesDTO(BaseModel):
     resources: list[ResourceDTO]
 
 
-class TeamDTO(BaseModel):
+class TeamResponse(BaseModel):
     __root__: Dict[str, ResourcesDTO]
 
     @classmethod
-    def prepare_team_dto(cls, team: str, resources: ResourcesDTO) -> TeamDTO:
+    def prepare_team_dto(cls, team: str, resources: ResourcesDTO) -> TeamResponse:
         return cls(__root__={team: resources})
 
 
-class TeamsDTO(BaseModel):
-    teams: list[TeamDTO]
+class TeamsResponse(BaseModel):
+    teams: list[TeamResponse]
 
     @staticmethod
-    def prepare_teams_dto(data: dict[str, dict[str, list[dict[str, dict]]]]) -> list[TeamDTO]:
-        teams_dto: list[TeamDTO] = []
+    def prepare_teams_dto(
+        data: dict[str, dict[str, list[dict[str, dict]]]]
+    ) -> list[TeamResponse]:
+        teams_dto: list[TeamResponse] = []
 
         for team, resources in data.items():
             resources_dto: list[ResourceDTO] = []
@@ -90,18 +94,20 @@ class TeamsDTO(BaseModel):
                         continue
 
                     dimensions_dto.append(
-                        DimensionDTO.prepare_dimension_dto(
-                            dimension=dimension
-                        )
+                        DimensionDTO.prepare_dimension_dto(dimension=dimension)
                     )
 
                 resources_dto.append(
                     ResourceDTO.prepare_resource_dto(
-                        resource=resource, dimensions=DimensionsDTO(dimensions=dimensions_dto),
+                        resource=resource,
+                        dimensions=DimensionsDTO(dimensions=dimensions_dto),
                     )
                 )
-            teams_dto.append(TeamDTO.prepare_team_dto(
-                team=team, resources=ResourcesDTO(resources=resources_dto),
-            ))
+            teams_dto.append(
+                TeamResponse.prepare_team_dto(
+                    team=team,
+                    resources=ResourcesDTO(resources=resources_dto),
+                )
+            )
 
         return teams_dto
