@@ -18,6 +18,15 @@ services:
       db:
         condition: service_healthy
 
+  metrics_generator:
+    build:
+      context: ./metrics_generator
+      dockerfile: Dockerfile
+    ports:
+      - "21122:21122"
+    environment:
+      - FLASK_APP=server.py
+
   db:
     image: postgres:14-alpine
     volumes:
