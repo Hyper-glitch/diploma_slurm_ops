@@ -32,7 +32,9 @@ app = get_application()
 async def startup_event():
     logger = logging.getLogger("uvicorn.access")
     handler = logging.StreamHandler()
-    handler.setFormatter(SpanFormatter(
-        'time="%(asctime)s" service=%(name)s level=%(levelname)s %(message)s trace_id=%(trace_id)s'
-    ))
+    handler.setFormatter(
+        SpanFormatter(
+            'time="%(asctime)s" service=%(name)s level=%(levelname)s %(message)s trace_id=%(trace_id)s'
+        )
+    )
     logger.addHandler(handler)
