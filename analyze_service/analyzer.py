@@ -3,14 +3,14 @@ from typing import Any
 
 from analyze_service.parser import ResourceParser
 
-logger = logging.getLogger('resource_analyzer')
+logger = logging.getLogger("resource_analyzer")
 
 
 def handle_raw_data(raw_data: str):
-    logger.info('Starting to analyze resource data.')
+    logger.info("Starting to analyze resource data.")
     parse_symbols = {
         "dollar": "$",
-        "pipe": '|',
+        "pipe": "|",
         "semicolon": ";",
     }
     analyzed_data: dict[str, dict[str, list[dict[str, dict[str, Any]]]]] = {}
@@ -27,7 +27,7 @@ def handle_raw_data(raw_data: str):
             raw_data=parsed_resources,
         )
 
-    logger.info('Successfully analyzed resource data.')
+    logger.info("Successfully analyzed resource data.")
     return analyzed_data
 
 
@@ -37,16 +37,20 @@ def analyze_raw_data(analyzed_data, team, raw_data):
     analyzed_dimensions: list[dict[str, Any]] = []
 
     for data_amount in range(0, 6000, step):
-        resources = raw_data[data_amount:data_amount + step]
+        resources = raw_data[data_amount : data_amount + step]
         try:
             parser_instance = ResourceParser(team=team, resources=resources)
         except ZeroDivisionError:
             analyzed_dimensions.append(None)
         else:
-            analyzed_dimensions.append(parser_instance.analyzed_data[team][parser_instance.resource_id])
+            analyzed_dimensions.append(
+                parser_instance.analyzed_data[team][parser_instance.resource_id]
+            )
         finally:
             if (data_amount + step) % 600 == 0:
-                analyzed_resources.update({parser_instance.resource_id: analyzed_dimensions})
+                analyzed_resources.update(
+                    {parser_instance.resource_id: analyzed_dimensions}
+                )
                 analyzed_dimensions = []
 
     analyzed_data[team] = analyzed_resources
