@@ -5,12 +5,13 @@ volumes:
 
 services:
   async_analyze_metrics:
-    build: .
-    command: uvicorn api.main:app --host 0.0.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    links:
+      - "db:database"
     ports:
       - "5000:5000"
-    networks:
-      - metrics_network
     environment:
       - AGENT_HOSTNAME=otel-collector
     depends_on:
@@ -20,14 +21,12 @@ services:
   db:
     image: postgres:14-alpine
     volumes:
-      - ./sql_app/init_default.sql:/docker-entrypoint-initdb.d/init_default.sql
+      - ./db/init_default.sql:/docker-entrypoint-initdb.d/init_default.sql
       - db_volume:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    networks:
-      - metrics_network
-    environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
+    env_file:
+      - .env
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "db", "-U", "glitch" ]
       timeout: 40s
@@ -40,8 +39,6 @@ services:
       - "6831:6831"
       - "14268:14268"
       - "4317:4317"
-    networks:
-      - metrics_network
     volumes:
       - ./config/otel-collector.yaml:/config/otel-collector.yaml
     command:
@@ -53,8 +50,6 @@ services:
     ports:
       - "3100:3100"
       - "55680:55680"
-    networks:
-      - metrics_network
     volumes:
       - ./config/tempo.yaml:/etc/tempo.yaml
       - ./example-data/tempo:/tmp/tempo
@@ -69,9 +64,3 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true
     ports:
       - "3000:3000"
-    networks:
-      - metrics_network
-
-networks:
-  metrics_network:
-    driver: bridge
