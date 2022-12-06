@@ -2,11 +2,16 @@ import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
+from api.cfg import OTLP_EXPORTER_AGENT_HOSTNAME, OTLP_EXPORTER_AGENT_PORT
 from api.routes.routes import router
-from span import SpanFormatter
 from db import cfg
 from db import tasks
+from span import SpanFormatter
 
 
 def get_application():
@@ -21,6 +26,12 @@ def get_application():
     app.add_event_handler("startup", tasks.create_start_app_handler(app))
     app.add_event_handler("shutdown", tasks.create_stop_app_handler(app))
     app.include_router(router, prefix="/api")
+    otlp_exporter = OTLPSpanExporter(
+        endpoint=f"{OTLP_EXPORTER_AGENT_HOSTNAME}:{OTLP_EXPORTER_AGENT_PORT}",
+        insecure=True,
+    )
+    trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(otlp_exporter))
+    FastAPIInstrumentor.instrument_app(app)
 
     return app
 
