@@ -6,9 +6,20 @@ from enums.usage import UsageEnum
 
 class ResourceParser:
     """Class for resource parser."""
+
     __slots__ = (
-        'dimension', 'resource_id', 'median', 'mean', 'team', 'resources', 'load_values', 'analyzed_data',
-        'usage_type', 'intensity', 'decision', 'collect_date'
+        "dimension",
+        "resource_id",
+        "median",
+        "mean",
+        "team",
+        "resources",
+        "load_values",
+        "analyzed_data",
+        "usage_type",
+        "intensity",
+        "decision",
+        "collect_date",
     )
 
     def __init__(self, team, resources):
@@ -40,7 +51,7 @@ class ResourceParser:
         last_index = len(self.resources) - 1
 
         for idx, parsed_resource in enumerate(self.resources):
-            resource_values = parsed_resource.lstrip('(').rstrip(')').split(',')
+            resource_values = parsed_resource.lstrip("(").rstrip(")").split(",")
             load_values.append(int(resource_values[-1]))
             if idx == last_index:
                 collect_date = resource_values[-2].split()[0]
@@ -62,24 +73,23 @@ class ResourceParser:
         return resource_id, dimension, load_values, collect_date
 
     def analyze_data(self):
-        setattr(self, 'mean', self.get_mean())
-        setattr(self, 'median', self.get_median())
-        setattr(self, 'usage_type', self.define_usage_type())
-        setattr(self, 'intensity', self.define_intensity())
+        setattr(self, "mean", self.get_mean())
+        setattr(self, "median", self.get_median())
+        setattr(self, "usage_type", self.define_usage_type())
+        setattr(self, "intensity", self.define_intensity())
 
         return {
             self.team: {
-                self.resource_id:
-                    {
-                        self.dimension: {
-                            'mean': round(self.mean, 2),
-                            'median': round(self.median, 2),
-                            'usage_type': self.usage_type,
-                            'intensity': self.intensity,
-                            'decision': self.make_decision(),
-                            'collect_date': self.collect_date,
-                        }
+                self.resource_id: {
+                    self.dimension: {
+                        "mean": round(self.mean, 2),
+                        "median": round(self.median, 2),
+                        "usage_type": self.usage_type,
+                        "intensity": self.intensity,
+                        "decision": self.make_decision(),
+                        "collect_date": self.collect_date,
                     }
+                }
             }
         }
 
@@ -98,7 +108,11 @@ class ResourceParser:
             median - median is the value separating the higher half from the lower half of a data sample.
         """
         quotient, remainder = divmod(len(self.load_values), 2)
-        return self.load_values[quotient] if remainder else sum(self.load_values[quotient - 1:quotient + 1]) / 2
+        return (
+            self.load_values[quotient]
+            if remainder
+            else sum(self.load_values[quotient - 1 : quotient + 1]) / 2
+        )
 
     def define_usage_type(self) -> str:
         """Compute and define service load."""
@@ -130,15 +144,30 @@ class ResourceParser:
 
         if self.intensity == IntensityEnum.LOW.value and self.usage_type in usage_types:
             text = DecisionEnum.DELETE.value
-        elif self.intensity == IntensityEnum.MEDIUM.value and self.usage_type == UsageEnum.DECREASE.value:
+        elif (
+            self.intensity == IntensityEnum.MEDIUM.value
+            and self.usage_type == UsageEnum.DECREASE.value
+        ):
             text = DecisionEnum.DELETE.value
-        elif self.intensity == IntensityEnum.MEDIUM.value and self.usage_type in usage_types[:-1]:
+        elif (
+            self.intensity == IntensityEnum.MEDIUM.value
+            and self.usage_type in usage_types[:-1]
+        ):
             text = DecisionEnum.NORMAL.value
-        elif self.intensity == IntensityEnum.HIGH.value and self.usage_type in usage_types[1:]:
+        elif (
+            self.intensity == IntensityEnum.HIGH.value
+            and self.usage_type in usage_types[1:]
+        ):
             text = DecisionEnum.NORMAL.value
-        elif self.intensity == IntensityEnum.HIGH.value and self.usage_type == UsageEnum.RACES.value:
+        elif (
+            self.intensity == IntensityEnum.HIGH.value
+            and self.usage_type == UsageEnum.RACES.value
+        ):
             text = DecisionEnum.EXTEND.value
-        elif self.intensity == IntensityEnum.EXTREME.value and self.usage_type in UsageEnum.values():
+        elif (
+            self.intensity == IntensityEnum.EXTREME.value
+            and self.usage_type in UsageEnum.values()
+        ):
             text = DecisionEnum.EXTEND.value
 
         return text
