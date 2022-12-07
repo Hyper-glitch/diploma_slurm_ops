@@ -45,10 +45,10 @@ Swagger API: http://127.0.0.1:5000/docs
 
 For example:
 http://127.0.0.1:5000/api/analyzed_metrics/1 -> 187.85ms
-![img.png](tempo_one.png)
+![img.png](how_it_works_photos/tempo_one.png)
 
 http://127.0.0.1:5000/api/analyzed_metrics/10 -> 1.77s
-![img_1.png](tempo_two.png)
+![img_1.png](how_it_works_photos/tempo_two.png)
 
 Also, it works with database queries like
 http://127.0.0.1:5000/api/teams/1
