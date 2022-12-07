@@ -4,15 +4,15 @@ from . import schemas
 from .models import Dimension, Resource, Team
 
 
-def get_dimension(session: Session, dimension_id: int):
+def get_dimension(session: Session, dimension_id: int) -> Dimension:
     return session.query(Dimension).filter_by(id=dimension_id).one_or_none()
 
 
-def get_resource(session: Session, resource_id: int):
+def get_resource(session: Session, resource_id: int) -> Resource:
     return session.query(Resource).filter_by(id=resource_id).one_or_none()
 
 
-def get_team(session: Session, team_id: int):
+def get_team(session: Session, team_id: int) -> Team:
     return session.query(Team).filter_by(id=team_id).one_or_none()
 
 
