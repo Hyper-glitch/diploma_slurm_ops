@@ -1,5 +1,5 @@
 FROM python:3.10-slim-buster
-WORKDIR /usr/src/async_analyze_metrics
+WORKDIR /usr/src/api
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 RUN apt-get update && apt-get -y install netcat gcc postgresql && apt-get clean
