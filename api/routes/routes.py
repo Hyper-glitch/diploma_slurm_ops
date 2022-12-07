@@ -30,6 +30,11 @@ async def add_team(team: Team, session=Depends(get_session)):
     return crud.create_team(session=session, team=team)
 
 
+@router.get("/teams/{item_id}", response_model=schemas.Team)
+async def get_team(item_id: int, session=Depends(get_session)):
+    return crud.get_team(session=session, team_id=item_id)
+
+
 @router.post("/resources/", response_model=schemas.Resource)
 async def add_resource(resource: Resource, session=Depends(get_session)):
     db_resource = crud.get_resource(session=session, resource_id=resource.id)
@@ -40,6 +45,11 @@ async def add_resource(resource: Resource, session=Depends(get_session)):
     )
 
 
+@router.get("/resources/{resource_id}", response_model=schemas.Resource)
+async def get_resource(resource_id: int, session=Depends(get_session)):
+    return crud.get_resource(session=session, resource_id=resource_id)
+
+
 @router.post("/dimensions/", response_model=schemas.Dimension)
 async def add_dimension(dimension: Dimension, session=Depends(get_session)):
     db_resource = crud.get_dimension(session=session, dimension_id=dimension.id)
@@ -48,3 +58,8 @@ async def add_dimension(dimension: Dimension, session=Depends(get_session)):
     return crud.create_dimension(
         session=session, dimension=dimension, resource_id=dimension.resource_id
     )
+
+
+@router.get("/dimensions/{dimension_id}", response_model=schemas.Dimension)
+async def get_resource(dimension_id: int, session=Depends(get_session)):
+    return crud.get_dimension(session=session, dimension_id=dimension_id)
