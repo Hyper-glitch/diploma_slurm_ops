@@ -30,7 +30,7 @@ def get_application():
     app.add_event_handler("startup", tasks.create_start_app_handler(app))
     app.add_event_handler("shutdown", tasks.create_stop_app_handler(app))
     app.include_router(router, prefix="/api")
-    resource = Resource(attributes={"service.name": "service-async_analyze_metrics"})
+    resource = Resource(attributes={"service.name": "service-api"})
     trace.set_tracer_provider(TracerProvider(resource=resource))
     otlp_exporter = OTLPSpanExporter(
         endpoint=f"{OTLP_EXPORTER_AGENT_HOSTNAME}:{OTLP_EXPORTER_AGENT_PORT}",
