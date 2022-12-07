@@ -37,7 +37,7 @@ def analyze_raw_data(analyzed_data, team, raw_data):
     analyzed_dimensions: list[dict[str, Any]] = []
 
     for data_amount in range(0, 6000, step):
-        resources = raw_data[data_amount : data_amount + step]
+        resources = raw_data[data_amount: data_amount + step]
         try:
             parser_instance = ResourceParser(team=team, resources=resources)
         except ZeroDivisionError:

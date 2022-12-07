@@ -111,7 +111,7 @@ class ResourceParser:
         return (
             self.load_values[quotient]
             if remainder
-            else sum(self.load_values[quotient - 1 : quotient + 1]) / 2
+            else sum(self.load_values[quotient - 1: quotient + 1]) / 2
         )
 
     def define_usage_type(self) -> str:
