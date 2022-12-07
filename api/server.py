@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -13,6 +14,7 @@ from api.cfg import OTLP_EXPORTER_AGENT_HOSTNAME, OTLP_EXPORTER_AGENT_PORT
 from api.routes.routes import router
 from db import cfg
 from db import tasks
+from db.database import engine
 from span import SpanFormatter
 
 
@@ -36,6 +38,7 @@ def get_application():
     )
     trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(otlp_exporter))
     FastAPIInstrumentor.instrument_app(app)
+    SQLAlchemyInstrumentor().instrument(engine=engine)
     return app
 
 
