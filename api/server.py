@@ -15,7 +15,7 @@ from api.routes.routes import router
 from db import cfg
 from db import tasks
 from db.database import engine
-from span import SpanFormatter
+from config.span import SpanFormatter
 
 
 def get_application():
