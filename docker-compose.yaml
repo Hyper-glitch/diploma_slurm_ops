@@ -8,12 +8,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    links:
-      - "db:database"
     ports:
       - "5000:5000"
     environment:
-      - AGENT_HOSTNAME=otel-collector
+      - OTLP_EXPORTER_AGENT_HOSTNAME=otel-collector
     depends_on:
       db:
         condition: service_healthy
