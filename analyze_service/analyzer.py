@@ -8,19 +8,14 @@ logger = logging.getLogger("resource_analyzer")
 
 def handle_raw_data(raw_data: str):
     logger.info("Starting to analyze resource data.")
-    parse_symbols = {
-        "dollar": "$",
-        "pipe": "|",
-        "semicolon": ";",
-    }
     analyzed_data: dict[str, dict[str, list[dict[str, dict[str, Any]]]]] = {}
 
-    splitted_commands = raw_data.split(parse_symbols["dollar"])
+    splitted_commands = raw_data.split("$")
 
     for splitted_command in splitted_commands:
-        parsed_data = splitted_command.split(parse_symbols["pipe"])
+        parsed_data = splitted_command.split("|")
         team = parsed_data[0]
-        parsed_resources = parsed_data[1].split(parse_symbols["semicolon"])
+        parsed_resources = parsed_data[1].split(";")
         analyze_raw_data(
             analyzed_data=analyzed_data,
             team=team,
