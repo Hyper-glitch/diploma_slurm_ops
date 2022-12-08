@@ -38,7 +38,7 @@ docker compose up -d
 
 ## How it works
 Swagger API: http://127.0.0.1:5000/docs
-1. Get analyzed metrics: http://127.0.0.1:5000/analyzed_metrics/<num>, where <num> - amount of data portion, the more, the longer request (you can see it in grafana)
+1. Get analyzed metrics: http://127.0.0.1:5000/analyzed_metrics/num, where num - amount of data portion, the more, the longer request (you can see it in grafana)
 2. Get **trace_id** in log in stdout
 3. Paste **trace_id** in grafana http://127.0.0.1:3000/explore
 4. See time of tracing network connections or/and sql queries.
