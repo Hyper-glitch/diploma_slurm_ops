@@ -8,4 +8,4 @@ class UsageEnum(str, Enum):
 
     @classmethod
     def values(cls):
-        return [usage_type for usage_type in cls]
+        return list(cls)
