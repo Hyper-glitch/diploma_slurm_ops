@@ -23,6 +23,10 @@ class ResourceParser:
     )
 
     def __init__(self, team, resources):
+        self.mean = None
+        self.median = None
+        self.usage_type = None
+        self.intensity = None
         self.collect_date = None
         self.load_values = None
         self.dimension = None
@@ -73,10 +77,10 @@ class ResourceParser:
         return resource_id, dimension, load_values, collect_date
 
     def analyze_data(self):
-        setattr(self, "mean", self.get_mean())
-        setattr(self, "median", self.get_median())
-        setattr(self, "usage_type", self.define_usage_type())
-        setattr(self, "intensity", self.define_intensity())
+        self.mean = self.get_mean()
+        self.median = self.get_median()
+        self.usage_type = self.define_usage_type()
+        self.intensity = self.define_intensity()
 
         return {
             self.team: {
